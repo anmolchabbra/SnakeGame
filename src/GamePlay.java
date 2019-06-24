@@ -1,11 +1,10 @@
-import org.w3c.dom.Text;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Random;
 
 public class GamePlay extends JPanel implements ActionListener, KeyListener {
+    private boolean gameover = false;
     private int[] snakexlength = new int[750];
     private int[] snakeylength = new int[750];
     private boolean left = false;
@@ -40,11 +39,31 @@ public class GamePlay extends JPanel implements ActionListener, KeyListener {
     private int xpos = random.nextInt(34);
     private int ypos = random.nextInt(23);
 
+    private Button replayButton = new Button();
+
     private ImageIcon tittleImage;
     public GamePlay() {
         addKeyListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
+        // Add replay button.
+        replayButton.setLabel("REPLAY");
+        replayButton.setBounds(220,250, 250, 300);
+        this.add(replayButton);
+        replayButton.setVisible(false);
+        replayButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                moves = 0;
+                lengthofsnake = 3;
+                gameover = false;
+                up = false; down = false; right = false; left = false;
+                replayButton.setVisible(false);
+                repaint();
+                timer.restart();
+            }
+        });
+        // Add timer.
         timer = new Timer(delay, this);
         timer.start();
     }
@@ -84,6 +103,7 @@ public class GamePlay extends JPanel implements ActionListener, KeyListener {
         rightmouth = new ImageIcon("rightmouth.png");
         rightmouth.paintIcon(this, g, snakexlength[0], snakeylength[0]);
 
+        // for(int a = 0; a < snakexlength.length; a++) {
         for(int a = 0; a < lengthofsnake; a++) {
             if (a == 0 && right) {
                 rightmouth = new ImageIcon("rightmouth.png");
@@ -110,8 +130,12 @@ public class GamePlay extends JPanel implements ActionListener, KeyListener {
                 snakeimage.paintIcon(this, g, snakexlength[a], snakeylength[a]);
             }
 
-            for (int i = 1; i < snakexlength.length; i++) {
+            for (int i = 1; i < lengthofsnake; i++) {
+                if (gameover) {
+                    break;
+                }
                 if (snakexlength[0] == snakexlength[i] && snakeylength[0] == snakeylength[i]) {
+                    gameover = true;
                     this.repaint();
                     g.setColor(Color.black);
                     g.fillRect(25, 75, 850, 575);
@@ -120,18 +144,8 @@ public class GamePlay extends JPanel implements ActionListener, KeyListener {
                     g.setFont(f);
                     timer.stop();
                     g.drawString("GAME OVER", 80, 320);
-                    /*
-                    Button b = new Button();
-                    b.setLabel("REPLAY");
-                    b.setBounds(220,250, 250, 300);
-                    this.add(b);
-                    b.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent actionEvent) {
-                            //replay game when we
-                        }
-                    });
-                */
+                    replayButton.setVisible(true);
+                    break;
                 }
             }
         }
